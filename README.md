@@ -1,7 +1,10 @@
 # magicmime
 
-`magicmime` is a Go package which allows you to discover a file's mimetype by looking for magic numbers in its content. It could be used as a supplementary for Go's `mime` package which only interprets the file extension to detect mimetypes. 
+`magicmime` is a Go package which allows you to discover a file's mimetype by looking for magic numbers in its content. It could be used as a supplementary for Go's `mime` package which only interprets the file extension to detect mimetypes. Internally, it implements libmagic(3) bindings.
 
+Tested only on Linux, should be working on BSD and Darwin. You could be able to build and make it working with Cygwin on Windows.
+
+## Usage
 In order to start, go get this repository:
 ~~~ go
 go get github.com/rakyll/magicmime
