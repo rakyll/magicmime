@@ -29,16 +29,25 @@ var (
 	ErrLookup = errors.New("error during type lookup")
 )
 
-// TypeByContent looks up for a file's mimetype by its content.
-// It uses a magic number database which is described in magic(5).
-func TypeByContent(filePath string) (string, error) {
-	// TODO: load db once, use for many lookups
+// newMagic creates a magic_t handle and loads database
+func newMagic() (C.magic_t, error) {
 	cookie := C.magic_open(C.int(0))
-	defer C.magic_close(cookie)
-
 	C.magic_setflags(cookie, C.int(C.MAGIC_MIME_TYPE))
 	if code := C.magic_load(cookie, nil); code != 0 {
-		return "", ErrNoDB
+		return nil, ErrNoDB
+	}
+	return cookie, nil
+}
+
+// TypeByFile looks up for a file's mimetype by its content.
+// It uses a magic number database which is described in magic(5).
+func TypeByFile(filePath string) (string, error) {
+	// TODO: load db once, use for many lookups
+	cookie, err := newMagic()
+	defer C.magic_close(cookie)
+
+	if err != nil {
+		return "", err
 	}
 
 	path := C.CString(filePath)
@@ -50,4 +59,21 @@ func TypeByContent(filePath string) (string, error) {
 	return C.GoString(out), nil
 }
 
-// TODO: // add mime discovery from a byte buffer
+// TypeByBuffer looks up for a blob's mimetype by its contents.
+// It uses a magic number database which is described in magic(5).
+func TypeByBuffer(blob []byte) (string, error) {
+	// TODO: load db once, use for many lookups
+	cookie, err := newMagic()
+	defer C.magic_close(cookie)
+
+	if err != nil {
+		return "", err
+	}
+
+	bytes := unsafe.Pointer(&blob[0])
+	out := C.magic_buffer(cookie, bytes, C.size_t(len(blob)))
+	if out == nil {
+		return "", ErrLookup // TODO: respond with what magic_error returns
+	}
+	return C.GoString(out), nil
+}

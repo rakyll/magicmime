@@ -13,3 +13,24 @@
 // limitations under the License.
 
 package magicmime
+
+import (
+	"encoding/base64"
+	"testing"
+)
+
+func TestGifContents(t *testing.T) {
+	b64Gif := "R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs="
+	expected := "image/gif"
+	gif, err := base64.StdEncoding.DecodeString(b64Gif)
+	if err != nil {
+		panic(err)
+	}
+	mimetype, err := TypeByBuffer(gif)
+	if err != nil {
+		panic(err)
+	}
+	if mimetype != expected {
+		t.Errorf("expected %s; got %s.", expected, mimetype)
+	}
+}
