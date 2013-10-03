@@ -1,9 +1,9 @@
 language: go
 go: 1.1
 
-before_install:
- - sudo apt-get update
- - sudo apt-get install libfreetype6-dev libmagic-dev
+before_script:
+ - sudo apt-get -qq update
+ - sudo apt-get -qq install libfreetype6-dev libmagic-dev
 
 script:
  - go test -v
