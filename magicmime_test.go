@@ -12,9 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package rrqueue provides a container for priority queues
-// and a simple round-robin scheduled consumer.
-
 package magicmime
 
 import (
@@ -22,15 +19,14 @@ import (
 	"testing"
 )
 
-var b64Gif = "R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs="
-
 func TestGifContents(t *testing.T) {
+	b64Gif := "R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs="
 	expected := "image/gif"
 	gif, err := base64.StdEncoding.DecodeString(b64Gif)
 	if err != nil {
 		panic(err)
 	}
-	mimetype, err := TypeByContents(gif)
+	mimetype, err := TypeByBuffer(gif)
 	if err != nil {
 		panic(err)
 	}

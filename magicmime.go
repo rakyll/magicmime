@@ -29,8 +29,6 @@ var (
 	ErrLookup = errors.New("error during type lookup")
 )
 
-var _magicCache C.magic_t = nil
-
 // newMagic creates a magic_t handle and loads database
 func newMagic() (C.magic_t, error) {
 	cookie := C.magic_open(C.int(0))
@@ -61,9 +59,9 @@ func TypeByFile(filePath string) (string, error) {
 	return C.GoString(out), nil
 }
 
-// TypeByContents looks up for a blob's mimetype by its contents.
+// TypeByBuffer looks up for a blob's mimetype by its contents.
 // It uses a magic number database which is described in magic(5).
-func TypeByContents(blob []byte) (string, error) {
+func TypeByBuffer(blob []byte) (string, error) {
 	// TODO: load db once, use for many lookups
 	cookie, err := newMagic()
 	defer C.magic_close(cookie)
