@@ -19,7 +19,43 @@ import (
 	"testing"
 )
 
-func TestGifContents(t *testing.T) {
+// Tests a gif file.
+func TestGifFile(t *testing.T) {
+	testFile(t, "./testdata/sample.gif", "image/gif")
+}
+
+// Tests a jpeg file.
+func TestJpegFile(t *testing.T) {
+	testFile(t, "./testdata/sample.jpg", "image/jpeg")
+}
+
+// Tests a png file.
+func TestPngFile(t *testing.T) {
+	testFile(t, "./testdata/sample.png", "image/png")
+}
+
+// Tests a pdf file.
+func TestPdfFile(t *testing.T) {
+	testFile(t, "./testdata/sample.pdf", "application/pdf")
+}
+
+// Tests a plain text file.
+func TestTextFile(t *testing.T) {
+	testFile(t, "./testdata/sample.txt", "text/plain")
+}
+
+// Tests a gzipped tar file.
+func TestGzippedTarFile(t *testing.T) {
+	testFile(t, "./testdata/sample.tar.gz", "application/x-gzip")
+}
+
+// Tests a zip file.
+func TestZipFile(t *testing.T) {
+	testFile(t, "./testdata/sample.zip", "application/zip")
+}
+
+// Tests a gif buffer.
+func TestGifBuffer(t *testing.T) {
 	b64Gif := "R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs="
 	expected := "image/gif"
 	gif, err := base64.StdEncoding.DecodeString(b64Gif)
@@ -27,6 +63,16 @@ func TestGifContents(t *testing.T) {
 		panic(err)
 	}
 	mimetype, err := TypeByBuffer(gif)
+	if err != nil {
+		panic(err)
+	}
+	if mimetype != expected {
+		t.Errorf("expected %s; got %s.", expected, mimetype)
+	}
+}
+
+func testFile(t *testing.T, path string, expected string) {
+	mimetype, err := TypeByFile(path)
 	if err != nil {
 		panic(err)
 	}
