@@ -13,7 +13,7 @@ You may need to install devel packages for libmagic. On Debian, Ubuntu and CentO
 
 ~~~ go
 import "github.com/rakyll/magicmime"
-mimetype, err := magicmime.TypeByContent("/path/to/file")
+mimetype, err := magicmime.TypeByFile("/path/to/file")
 ~~~
     
 ## License
