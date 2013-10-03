@@ -16,3 +16,25 @@
 // and a simple round-robin scheduled consumer.
 
 package magicmime
+
+import (
+	"encoding/base64"
+	"testing"
+)
+
+var b64Gif = "R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs="
+
+func TestGifContents(t *testing.T) {
+	expected := "image/gif"
+	gif, err := base64.StdEncoding.DecodeString(b64Gif)
+	if err != nil {
+		panic(err)
+	}
+	mimetype, err := TypeByContents(gif)
+	if err != nil {
+		panic(err)
+	}
+	if mimetype != expected {
+		t.Errorf("expected %s; got %s.", expected, mimetype)
+	}
+}
