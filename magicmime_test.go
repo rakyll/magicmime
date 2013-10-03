@@ -12,7 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package rrqueue provides a container for priority queues
-// and a simple round-robin scheduled consumer.
-
 package magicmime
