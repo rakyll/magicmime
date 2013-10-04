@@ -32,7 +32,7 @@ var (
 // newMagic creates a magic_t handle and loads database
 func newMagic() (C.magic_t, error) {
 	cookie := C.magic_open(C.int(0))
-	C.magic_setflags(cookie, C.int(C.MAGIC_MIME_TYPE))
+	C.magic_setflags(cookie, C.int(C.MAGIC_MIME_TYPE|C.MAGIC_SYMLINK))
 	if code := C.magic_load(cookie, nil); code != 0 {
 		return nil, ErrNoDB
 	}
