@@ -19,6 +19,19 @@ import (
 	"testing"
 )
 
+var (
+	m *Magic
+)
+
+func TestNew(t *testing.T) {
+	var err error
+
+	m, err = New()
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
 // Tests a gif file.
 func TestGifFile(t *testing.T) {
 	testFile(t, "./testdata/sample.gif", "image/gif")
@@ -62,7 +75,7 @@ func TestGifBuffer(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	mimetype, err := TypeByBuffer(gif)
+	mimetype, err := m.TypeByBuffer(gif)
 	if err != nil {
 		panic(err)
 	}
@@ -71,12 +84,25 @@ func TestGifBuffer(t *testing.T) {
 	}
 }
 
-func testFile(t *testing.T, path string, expected string) {
-	mimetype, err := TypeByFile(path)
+func testFile(tb testing.TB, path string, expected string) {
+	mimetype, err := m.TypeByFile(path)
 	if err != nil {
 		panic(err)
 	}
 	if mimetype != expected {
-		t.Errorf("expected %s; got %s.", expected, mimetype)
+		tb.Errorf("expected %s; got %s.", expected, mimetype)
+	}
+}
+
+func TestMissingFile(t *testing.T) {
+	_, err := m.TypeByFile("missingFile.txt")
+	if err == nil {
+		t.Error("no error for missing file")
+	}
+}
+
+func BenchmarkZipFile(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		testFile(b, "./testdata/sample.zip", "application/zip")
 	}
 }

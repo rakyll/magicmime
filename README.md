@@ -13,14 +13,15 @@ You may need to install devel packages for `libmagic`. On Debian, Ubuntu and Cen
 
 ~~~ go
 import "github.com/rakyll/magicmime"
-mimetype, err := magicmime.TypeByFile("/path/to/file")
+mm, err := magicmime.New()
+mimetype, err := mm.TypeByFile("/path/to/file")
 ~~~
 
 Available functions are:
 
 ~~~ go
-func TypeByFile(filePath string) (string, error)
-func TypeByBuffer(buffer []byte) (string, error)
+func (m *Magic) TypeByFile(filePath string) (string, error)
+func (m *Magic) TypeByBuffer(buffer []byte) (string, error)
 ~~~
     
 ## License

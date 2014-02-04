@@ -25,56 +25,42 @@ import (
 	"unsafe"
 )
 
-var (
-	ErrNoDB   = errors.New("no magic db to load")
-	ErrLookup = errors.New("error during type lookup")
-)
+type Magic struct {
+	db C.magic_t
+}
 
-// newMagic creates a magic_t handle and loads database
-func newMagic() (C.magic_t, error) {
-	cookie := C.magic_open(C.int(0))
-	C.magic_setflags(cookie, C.int(C.MAGIC_MIME_TYPE|C.MAGIC_SYMLINK))
-	if code := C.magic_load(cookie, nil); code != 0 {
-		return nil, ErrNoDB
+func New() (*Magic, error) {
+	db := C.magic_open(C.int(0))
+	C.magic_setflags(db, C.int(C.MAGIC_MIME_TYPE|C.MAGIC_SYMLINK|C.MAGIC_ERROR))
+	if code := C.magic_load(db, nil); code != 0 {
+		return nil, errors.New(C.GoString(C.magic_error(db)))
 	}
-	return cookie, nil
+	return &Magic{db}, nil
 }
 
 // TypeByFile looks up for a file's mimetype by its content.
 // It uses a magic number database which is described in magic(5).
-func TypeByFile(filePath string) (string, error) {
-	// TODO: load db once, use for many lookups
-	cookie, err := newMagic()
-	defer C.magic_close(cookie)
-
-	if err != nil {
-		return "", err
-	}
-
+func (m *Magic) TypeByFile(filePath string) (string, error) {
 	path := C.CString(filePath)
 	defer C.free(unsafe.Pointer(path))
-	out := C.magic_file(cookie, path)
+	out := C.magic_file(m.db, path)
 	if out == nil {
-		return "", ErrLookup // TODO: respond with what magic_error returns
+		return "", errors.New(C.GoString(C.magic_error(m.db)))
 	}
 	return C.GoString(out), nil
 }
 
 // TypeByBuffer looks up for a blob's mimetype by its contents.
 // It uses a magic number database which is described in magic(5).
-func TypeByBuffer(blob []byte) (string, error) {
-	// TODO: load db once, use for many lookups
-	cookie, err := newMagic()
-	defer C.magic_close(cookie)
-
-	if err != nil {
-		return "", err
-	}
-
+func (m *Magic) TypeByBuffer(blob []byte) (string, error) {
 	bytes := unsafe.Pointer(&blob[0])
-	out := C.magic_buffer(cookie, bytes, C.size_t(len(blob)))
+	out := C.magic_buffer(m.db, bytes, C.size_t(len(blob)))
 	if out == nil {
-		return "", ErrLookup // TODO: respond with what magic_error returns
+		return "", errors.New(C.GoString(C.magic_error(m.db)))
 	}
 	return C.GoString(out), nil
+}
+
+func (m *Magic) Close() {
+	C.magic_close(m.db)
 }
