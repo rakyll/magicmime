@@ -4,25 +4,50 @@
 
 Tested on Linux and Mac OS X, should be working on BSD. You could be able to build and make it working with Cygwin on Windows.
 
+## Prerequisites
+You might need to install devel packages for `libmagic`. On Debian, Ubuntu and CentOS, get `libmagic-dev` package from your package manager. On Mac OS X get `libmagic` via Homebrew: `brew install libmagic`. If you don't have the required dev packages, compilation will be terminated by an error saying `magic.h` cannot be found.
+
+
 ## Usage
 In order to start, go get this repository:
-~~~ go
+
+```golang
 go get github.com/rakyll/magicmime
-~~~
-You may need to install devel packages for `libmagic`. On Debian, Ubuntu and CentOS, get `libmagic-dev` package from your package manager. On Mac OS X get `libmagic` via Homebrew: `brew install libmagic`. If you don't have the required dev packages, compilation will be terminated by an error saying `magic.h` cannot be found.
+```
 
-~~~ go
-import "github.com/rakyll/magicmime"
-mm, err := magicmime.New()
-mimetype, err := mm.TypeByFile("/path/to/file")
-~~~
+### Example
 
-Available functions are:
+```golang
+package main
 
-~~~ go
-func (m *Magic) TypeByFile(filePath string) (string, error)
-func (m *Magic) TypeByBuffer(buffer []byte) (string, error)
-~~~
+import (
+	"fmt"
+
+	"github.com/rakyll/magicmime"
+)
+
+func main() {
+	mm, err := magicmime.New(magicmime.MAGIC_MIME_TYPE | magicmime.MAGIC_SYMLINK | magicmime.MAGIC_ERROR)
+	if err != nil {
+		panic(err)
+	}
+
+	filepath := "/bin/ls"
+
+	mimetype, err := mm.TypeByFile(filepath)
+	if err != nil {
+		fmt.Printf("Something went wrong: %s", err)
+		return
+	}
+
+	fmt.Printf("%s -> %s\n", filepath, mimetype)
+}
+```
+
+## API
+
+https://godoc.org/github.com/rakyll/magicmime
+
     
 ## License
     Copyright 2013 Google Inc. All Rights Reserved.
