@@ -29,16 +29,96 @@ type Magic struct {
 	db C.magic_t
 }
 
-func New(flags MagicFlags) (*Magic, error) {
+type MagicFlag int
+
+const (
+	// No special handling
+	MAGIC_NONE MagicFlag = C.MAGIC_NONE
+
+	// Prints debugging messages to stderr
+	MAGIC_DEBUG MagicFlag = C.MAGIC_DEBUG
+
+	// If the file queried is a symlink, follow it.
+	MAGIC_SYMLINK MagicFlag = C.MAGIC_SYMLINK
+
+	// If the file is compressed, unpack it and look at the contents.
+	MAGIC_COMPRESS MagicFlag = C.MAGIC_COMPRESS
+
+	// If the file is a block or character special device, then open the device
+	// and try to look in its contents.
+	MAGIC_DEVICES MagicFlag = C.MAGIC_DEVICES
+
+	// Return a MIME type string, instead of a textual description.
+	MAGIC_MIME_TYPE MagicFlag = C.MAGIC_MIME_TYPE
+
+	// Return a MIME encoding, instead of a textual description.
+	MAGIC_MIME_ENCODING MagicFlag = C.MAGIC_MIME_ENCODING
+
+	// A shorthand for MAGIC_MIME_TYPE | MAGIC_MIME_ENCODING.
+	MAGIC_MIME MagicFlag = C.MAGIC_MIME
+
+	// Return all matches, not just the first.
+	MAGIC_CONTINUE MagicFlag = C.MAGIC_CONTINUE
+
+	// Check the magic database for consistency and print warnings to stderr.
+	MAGIC_CHECK MagicFlag = C.MAGIC_CHECK
+
+	// On systems that support utime(2) or utimes(2), attempt to preserve the
+	// access time of files analyzed.
+	MAGIC_PRESERVE_ATIME MagicFlag = C.MAGIC_PRESERVE_ATIME
+
+	// Don't translate unprintable characters to a \ooo octal representation.
+	MAGIC_RAW MagicFlag = C.MAGIC_RAW
+
+	// Treat operating system errors while trying to open files and follow
+	// symlinks as real errors, instead of printing them in the magic buffer
+	MAGIC_ERROR MagicFlag = C.MAGIC_ERROR
+
+	// Return the Apple creator and type.
+	MAGIC_APPLE MagicFlag = C.MAGIC_APPLE
+
+	// Don't check for EMX application type (only on EMX).
+	MAGIC_NO_CHECK_APPTYPE MagicFlag = C.MAGIC_NO_CHECK_APPTYPE
+
+	// Don't get extra information on MS Composite Document Files.
+	MAGIC_NO_CHECK_CDF MagicFlag = C.MAGIC_NO_CHECK_CDF
+
+	// Don't look inside compressed files.
+	MAGIC_NO_CHECK_COMPRESS MagicFlag = C.MAGIC_NO_CHECK_COMPRESS
+
+	// Don't print ELF details.
+	MAGIC_NO_CHECK_ELF MagicFlag = C.MAGIC_NO_CHECK_ELF
+
+	// Don't check text encodings.
+	MAGIC_NO_CHECK_ENCODING MagicFlag = C.MAGIC_NO_CHECK_ENCODING
+
+	// Don't consult magic files.
+	MAGIC_NO_CHECK_SOFT MagicFlag = C.MAGIC_NO_CHECK_SOFT
+
+	// Don't examine tar files.
+	MAGIC_NO_CHECK_TAR MagicFlag = C.MAGIC_NO_CHECK_TAR
+
+	// Don't check for various types of text files.
+	MAGIC_NO_CHECK_TEXT MagicFlag = C.MAGIC_NO_CHECK_TEXT
+
+	// Don't look for known tokens inside ascii files.
+	MAGIC_NO_CHECK_TOKENS MagicFlag = C.MAGIC_NO_CHECK_TOKENS
+)
+
+func New(flags MagicFlag) (*Magic, error) {
 	db := C.magic_open(C.int(0))
 	if db == nil {
 		return nil, errors.New("Error allocating magic cookie")
 	}
 
-	C.magic_setflags(db, C.int(C.MAGIC_MIME_TYPE|C.MAGIC_SYMLINK|C.MAGIC_ERROR))
+	if code := C.magic_setflags(db, C.int(flags)); code != 0 {
+		return nil, errors.New(C.GoString(C.magic_error(db)))
+	}
+
 	if code := C.magic_load(db, nil); code != 0 {
 		return nil, errors.New(C.GoString(C.magic_error(db)))
 	}
+
 	return &Magic{db}, nil
 }
 

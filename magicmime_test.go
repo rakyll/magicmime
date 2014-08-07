@@ -26,7 +26,7 @@ var (
 func TestNew(t *testing.T) {
 	var err error
 
-	m, err = New()
+	m, err = New(MAGIC_MIME_TYPE | MAGIC_SYMLINK | MAGIC_ERROR)
 	if err != nil {
 		t.Fatal(err)
 	}
