@@ -29,8 +29,12 @@ type Magic struct {
 	db C.magic_t
 }
 
-func New() (*Magic, error) {
+func New(flags MagicFlags) (*Magic, error) {
 	db := C.magic_open(C.int(0))
+	if db == nil {
+		return nil, errors.New("Error allocating magic cookie")
+	}
+
 	C.magic_setflags(db, C.int(C.MAGIC_MIME_TYPE|C.MAGIC_SYMLINK|C.MAGIC_ERROR))
 	if code := C.magic_load(db, nil); code != 0 {
 		return nil, errors.New(C.GoString(C.magic_error(db)))
