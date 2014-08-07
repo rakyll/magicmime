@@ -1,4 +1,4 @@
-package main
+package magicmime_test
 
 import (
 	"fmt"
