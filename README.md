@@ -17,7 +17,7 @@ go get github.com/rakyll/magicmime
 
 ### Example
 
-```golang
+```go
 package main
 
 import (
