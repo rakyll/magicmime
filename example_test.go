@@ -7,10 +7,6 @@ import (
 	"github.com/rakyll/magicmime"
 )
 
-// TODO: Remove after Go 1.4.
-// Related to https://codereview.appspot.com/107320046
-func TestA(t *testing.T) {}
-
 func Example_1() {
 	mm, err := magicmime.New(magicmime.MAGIC_MIME_TYPE | magicmime.MAGIC_SYMLINK | magicmime.MAGIC_ERROR)
 	if err != nil {
