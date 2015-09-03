@@ -23,6 +23,22 @@ See [example_test.go](https://github.com/rakyll/magicmime/blob/master/example_te
 
 https://godoc.org/github.com/rakyll/magicmime
 
+## Note for OS X (Brew) Users:
+
+If you have installed libmagick with `brew` you have to edit flags in `magicmime.go` file:
+```go
+.
+.
+.
+// #cgo LDFLAGS: -lmagic -L/usr/local/lib
+// #cgo CFLAGS: -I/usr/local/include
+// #include <stdlib.h>
+// #include <magic.h>
+import "C"
+.
+.
+.
+```
     
 ## License
     Copyright 2013 Google Inc. All Rights Reserved.
