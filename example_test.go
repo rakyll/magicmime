@@ -16,10 +16,9 @@ func Example_1() {
 	if err != nil {
 		panic(err)
 	}
+	defer mm.Close()
 
-	filepath := "/bin/ls"
-
-	mimetype, err := mm.TypeByFile(filepath)
+	mimetype, err := mm.TypeByFile("/path/to/file")
 	if err != nil {
 		fmt.Printf("Something went wrong: %s", err)
 		return
