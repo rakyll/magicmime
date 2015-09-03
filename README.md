@@ -50,7 +50,7 @@ https://godoc.org/github.com/rakyll/magicmime
 
 ## Note for OS X (Brew) Users:
 
-If you have installed libmagick with `brew` you have to edit flags in `magicmie.go` file:
+If you have installed libmagick with `brew` you have to edit flags in `magicmime.go` file:
 ```go
 .
 .
