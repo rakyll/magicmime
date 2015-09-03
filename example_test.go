@@ -7,7 +7,7 @@ import (
 	"github.com/rakyll/magicmime"
 )
 
-func Example_1() {
+func Example_TypeByFile() {
 	mm, err := magicmime.New(magicmime.MAGIC_MIME_TYPE | magicmime.MAGIC_SYMLINK | magicmime.MAGIC_ERROR)
 	if err != nil {
 		panic(err)
