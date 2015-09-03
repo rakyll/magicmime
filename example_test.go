@@ -1,24 +1,21 @@
 package magicmime_test
 
 import (
-	"fmt"
-	"testing"
+	"log"
 
 	"github.com/rakyll/magicmime"
 )
 
 func Example_TypeByFile() {
-	mm, err := magicmime.New(magicmime.MAGIC_MIME_TYPE | magicmime.MAGIC_SYMLINK | magicmime.MAGIC_ERROR)
-	if err != nil {
-		panic(err)
+	if err := magicmime.Open(magicmime.MAGIC_MIME_TYPE | magicmime.MAGIC_SYMLINK | magicmime.MAGIC_ERROR); err != nil {
+		log.Fatal(err)
 	}
-	defer mm.Close()
+	defer magicmime.Close()
 
-	mimetype, err := mm.TypeByFile("/path/to/file")
+	mimetype, err := magicmime.TypeByFile("/path/to/file")
 	if err != nil {
-		fmt.Printf("Something went wrong: %s", err)
-		return
+		log.Fatalf("error occured during type lookup: %v", err)
 	}
 
-	fmt.Printf("%s -> %s\n", filepath, mimetype)
+	log.Printf("mime-type: %v", mimetype)
 }

@@ -26,9 +26,7 @@ import (
 	"unsafe"
 )
 
-type Magic struct {
-	db C.magic_t
-}
+var db C.magic_t
 
 type MagicFlag int
 
@@ -106,46 +104,47 @@ const (
 	MAGIC_NO_CHECK_TOKENS MagicFlag = C.MAGIC_NO_CHECK_TOKENS
 )
 
-func New(flags MagicFlag) (*Magic, error) {
-	db := C.magic_open(C.int(0))
+func Open(flags MagicFlag) error {
+	db = C.magic_open(C.int(0))
 	if db == nil {
-		return nil, errors.New("Error allocating magic cookie")
+		return errors.New("error opening magic")
 	}
 
 	if code := C.magic_setflags(db, C.int(flags)); code != 0 {
-		return nil, errors.New(C.GoString(C.magic_error(db)))
+		return errors.New(C.GoString(C.magic_error(db)))
 	}
 
 	if code := C.magic_load(db, nil); code != 0 {
-		return nil, errors.New(C.GoString(C.magic_error(db)))
+		return errors.New(C.GoString(C.magic_error(db)))
 	}
 
-	return &Magic{db}, nil
+	return nil
 }
 
 // TypeByFile looks up for a file's mimetype by its content.
 // It uses a magic number database which is described in magic(5).
-func (m *Magic) TypeByFile(filePath string) (string, error) {
+func TypeByFile(filePath string) (string, error) {
 	path := C.CString(filePath)
 	defer C.free(unsafe.Pointer(path))
-	out := C.magic_file(m.db, path)
+	out := C.magic_file(db, path)
 	if out == nil {
-		return "", errors.New(C.GoString(C.magic_error(m.db)))
+		return "", errors.New(C.GoString(C.magic_error(db)))
 	}
 	return C.GoString(out), nil
 }
 
 // TypeByBuffer looks up for a blob's mimetype by its contents.
 // It uses a magic number database which is described in magic(5).
-func (m *Magic) TypeByBuffer(blob []byte) (string, error) {
+func TypeByBuffer(blob []byte) (string, error) {
 	bytes := unsafe.Pointer(&blob[0])
-	out := C.magic_buffer(m.db, bytes, C.size_t(len(blob)))
+	out := C.magic_buffer(db, bytes, C.size_t(len(blob)))
 	if out == nil {
-		return "", errors.New(C.GoString(C.magic_error(m.db)))
+		return "", errors.New(C.GoString(C.magic_error(db)))
 	}
 	return C.GoString(out), nil
 }
 
-func (m *Magic) Close() {
-	C.magic_close(m.db)
+func Close() {
+	C.magic_close(db)
+	db = nil
 }
