@@ -17,7 +17,7 @@ go get github.com/rakyll/magicmime
 
 ### Examples
 
-See [godoc examples](http://localhost:6060/pkg/github.com/rakyll/magicmime/#pkg-examples).
+See [godoc examples](https://godoc.org/pkg/github.com/rakyll/magicmime/#pkg-examples).
 
 ## Docs
 
