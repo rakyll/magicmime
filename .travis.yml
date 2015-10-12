@@ -7,3 +7,8 @@ addons:
   apt:
     packages:
       - libmagic-dev
+before_install:
+  - go get golang.org/x/tools/cmd/cover
+  - go get github.com/mattn/goveralls
+after_script:
+  - sh `pwd`/scripts/coverage --coveralls

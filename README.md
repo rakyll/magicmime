@@ -1,4 +1,4 @@
-# magicmime [![Build Status](http://img.shields.io/travis/rakyll/magicmime/master.svg?style=flat)](https://travis-ci.org/rakyll/magicmime) [![GoDoc](https://godoc.org/github.com/rakyll/magicmime?status.svg)](https://godoc.org/github.com/rakyll/magicmime)
+# magicmime [![Build Status](http://img.shields.io/travis/rakyll/magicmime/master.svg?style=flat)](https://travis-ci.org/rakyll/magicmime) [![Coverage Status](https://coveralls.io/repos/rakyll/magicmime/badge.svg)](https://coveralls.io/r/rakyll/magicmime) [![GoDoc](https://godoc.org/github.com/rakyll/magicmime?status.svg)](https://godoc.org/github.com/rakyll/magicmime)
 
 `magicmime` is a Go package which allows you to discover a file's mimetype by looking for magic numbers in its content. It could be used as a supplementary for Go's [`mime`](http://golang.org/pkg/mime/) package which only interprets the file extension to detect mimetypes. Internally, it implements [libmagic(3)](http://linux.die.net/man/3/libmagic) bindings.
 
