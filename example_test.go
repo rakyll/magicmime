@@ -14,21 +14,19 @@
 
 // +build linux darwin
 
-package magicmime_test
+package magicmime
 
 import (
 	"log"
-
-	"github.com/rakyll/magicmime"
 )
 
 func Example_typeByFile() {
-	if err := magicmime.Open(magicmime.MAGIC_MIME_TYPE | magicmime.MAGIC_SYMLINK | magicmime.MAGIC_ERROR); err != nil {
+	if err := Open(MAGIC_MIME_TYPE | MAGIC_SYMLINK | MAGIC_ERROR); err != nil {
 		log.Fatal(err)
 	}
-	defer magicmime.Close()
+	defer Close()
 
-	mimetype, err := magicmime.TypeByFile("/path/to/file")
+	mimetype, err := TypeByFile("/path/to/file")
 	if err != nil {
 		log.Fatalf("error occured during type lookup: %v", err)
 	}
