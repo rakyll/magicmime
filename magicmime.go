@@ -15,6 +15,11 @@
 // +build linux darwin
 
 // Package magicmime detects mimetypes using libmagic.
+// This package requires libmagic, install it by the following
+// commands below.
+//	 - Debian or Ubuntu: apt-get install libmagic-dev
+//	 - RHEL, CentOS or Fedora: yum install file-devel
+//	 - Mac OS X: brew install libmagic
 package magicmime
 
 // #cgo CFLAGS: -I/usr/local/include
