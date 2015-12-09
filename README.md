@@ -5,7 +5,7 @@
 Tested on Linux and Mac OS X, should be working on BSD. You could be able to build and make it working with Cygwin on Windows.
 
 ## Prerequisites
-You might need to install devel packages for `libmagic`. On Debian, Ubuntu and CentOS, get `libmagic-dev` package from your package manager. On Mac OS X get `libmagic` via Homebrew: `brew install libmagic`. If you don't have the required dev packages, compilation will be terminated by an error saying `magic.h` cannot be found.
+This uses the `libmagic` library from the `file` tool, so you might need to install the development package for `libmagic`. On Debian or Ubuntu: `apt-get install libmagic-dev`. On RHEL, CentOS or Fedora: `yum install file-devel`. On Mac OS X: `brew install libmagic`. If you don't have the required package, compilation will be terminated by an error saying `magic.h` cannot be found.
 
 
 ## Usage
