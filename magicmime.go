@@ -118,13 +118,14 @@ func Open(flags MagicFlag) error {
 	}
 
 	if code := C.magic_setflags(db, C.int(flags)); code != 0 {
+		Close()
 		return errors.New(C.GoString(C.magic_error(db)))
 	}
 
 	if code := C.magic_load(db, nil); code != 0 {
+		Close()
 		return errors.New(C.GoString(C.magic_error(db)))
 	}
-
 	return nil
 }
 
