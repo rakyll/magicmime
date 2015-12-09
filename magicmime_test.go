@@ -94,6 +94,11 @@ func testFile(tb testing.TB, path string, expected string) {
 }
 
 func TestMissingFile(t *testing.T) {
+	if err := Open(MAGIC_MIME_TYPE | MAGIC_SYMLINK | MAGIC_ERROR); err != nil {
+		t.Fatal(err)
+	}
+	defer Close()
+
 	_, err := TypeByFile("missingFile.txt")
 	if err == nil {
 		t.Error("no error for missing file")
