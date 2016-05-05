@@ -30,10 +30,21 @@ import "C"
 
 import (
 	"errors"
+	"sync"
 	"unsafe"
 )
 
-var db C.magic_t
+type MimeDB struct {
+	mutex *sync.Mutex
+	db    C.magic_t
+}
+
+type SyncMode int
+
+const (
+	SYNCHRONIZED   SyncMode = iota
+	UNSYNCHRONIZED SyncMode = iota
+)
 
 type Flag int
 
@@ -113,49 +124,68 @@ const (
 
 // Open initializes magicmime and opens the magicmime database
 // with the specified flags. Once successfully opened, users must
-// call Close when they are
-func Open(flags Flag) error {
-	db = C.magic_open(C.int(0))
+// call Close when they are finished. The syncMode parameter controls
+// whether access to the database is synchronized to allow use by
+// multiple goroutines. This is likely required for users of
+// libmagic since the library is not thread-safe.
+func Open(syncMode SyncMode, flags Flag) (*MimeDB, error) {
+	db := C.magic_open(C.int(0))
 	if db == nil {
-		return errors.New("error opening magic")
+		return nil, errors.New("error opening magic")
 	}
 
 	if code := C.magic_setflags(db, C.int(flags)); code != 0 {
-		Close()
-		return errors.New(C.GoString(C.magic_error(db)))
+		C.magic_close(db)
+		return nil, errors.New(C.GoString(C.magic_error(db)))
 	}
 
 	if code := C.magic_load(db, nil); code != 0 {
-		Close()
-		return errors.New(C.GoString(C.magic_error(db)))
+		C.magic_close(db)
+		return nil, errors.New(C.GoString(C.magic_error(db)))
 	}
-	return nil
+	var mutex *sync.Mutex
+	if syncMode == SYNCHRONIZED {
+		mutex = &sync.Mutex{}
+	}
+	return &MimeDB{mutex, db}, nil
 }
 
 // TypeByFile looks up for a file's mimetype by its content.
 // It uses a magic number database which is described in magic(5).
-func TypeByFile(filePath string) (string, error) {
+func (m *MimeDB) TypeByFile(filePath string) (string, error) {
 	path := C.CString(filePath)
 	defer C.free(unsafe.Pointer(path))
-	out := C.magic_file(db, path)
+	if m.mutex != nil {
+		m.mutex.Lock()
+		defer m.mutex.Unlock()
+	}
+	out := C.magic_file(m.db, path)
 	if out == nil {
-		return "", errors.New(C.GoString(C.magic_error(db)))
+		return "", errors.New(C.GoString(C.magic_error(m.db)))
 	}
 	return C.GoString(out), nil
 }
 
 // TypeByBuffer looks up for a blob's mimetype by its contents.
 // It uses a magic number database which is described in magic(5).
-func TypeByBuffer(blob []byte) (string, error) {
+func (m *MimeDB) TypeByBuffer(blob []byte) (string, error) {
 	bytes := unsafe.Pointer(&blob[0])
-	out := C.magic_buffer(db, bytes, C.size_t(len(blob)))
+	if m.mutex != nil {
+		m.mutex.Lock()
+		m.mutex.Unlock()
+	}
+	out := C.magic_buffer(m.db, bytes, C.size_t(len(blob)))
 	if out == nil {
-		return "", errors.New(C.GoString(C.magic_error(db)))
+		return "", errors.New(C.GoString(C.magic_error(m.db)))
 	}
 	return C.GoString(out), nil
 }
 
-func Close() {
-	C.magic_close(db)
-	db = nil
+func (m *MimeDB) Close() {
+	if m.mutex != nil {
+		m.mutex.Lock()
+		defer m.mutex.Unlock()
+	}
+	C.magic_close(m.db)
+	m.db = nil
 }
