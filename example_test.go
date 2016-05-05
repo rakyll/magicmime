@@ -23,7 +23,7 @@ import (
 )
 
 func ExampleTypeByFile() {
-	if err := magicmime.Open(magicmime.MAGIC_MIME_TYPE | magicmime.MAGIC_SYMLINK | magicmime.MAGIC_ERROR); err != nil {
+	if err := magicmime.Open(magicmime.Unsynchronized, magicmime.MAGIC_MIME_TYPE|magicmime.MAGIC_SYMLINK|magicmime.MAGIC_ERROR); err != nil {
 		log.Fatal(err)
 	}
 	defer magicmime.Close()

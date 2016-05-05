@@ -23,45 +23,53 @@ import (
 
 // Tests a gif file.
 func TestGifFile(t *testing.T) {
-	testFile(t, "./testdata/sample.gif", "image/gif")
+	testFile(t, Unsynchronized, "./testdata/sample.gif", "image/gif")
+	testFile(t, Synchronized, "./testdata/sample.gif", "image/gif")
 }
 
 // Tests a jpeg file.
 func TestJpegFile(t *testing.T) {
-	testFile(t, "./testdata/sample.jpg", "image/jpeg")
+	testFile(t, Unsynchronized, "./testdata/sample.jpg", "image/jpeg")
+	testFile(t, Synchronized, "./testdata/sample.jpg", "image/jpeg")
 }
 
 // Tests a png file.
 func TestPngFile(t *testing.T) {
-	testFile(t, "./testdata/sample.png", "image/png")
+	testFile(t, Unsynchronized, "./testdata/sample.png", "image/png")
+	testFile(t, Synchronized, "./testdata/sample.png", "image/png")
 }
 
 // Tests a pdf file.
 func TestPdfFile(t *testing.T) {
-	testFile(t, "./testdata/sample.pdf", "application/pdf")
+	testFile(t, Unsynchronized, "./testdata/sample.pdf", "application/pdf")
+	testFile(t, Synchronized, "./testdata/sample.pdf", "application/pdf")
 }
 
 // Tests a plain text file.
 func TestTextFile(t *testing.T) {
-	testFile(t, "./testdata/sample.txt", "text/plain")
+	testFile(t, Unsynchronized, "./testdata/sample.txt", "text/plain")
+	testFile(t, Synchronized, "./testdata/sample.txt", "text/plain")
 }
 
 // Tests a gzipped tar file.
 func TestGzippedTarFile(t *testing.T) {
-	testFile(t, "./testdata/sample.tar.gz", "application/x-gzip")
+	testFile(t, Unsynchronized, "./testdata/sample.tar.gz", "application/x-gzip")
+	testFile(t, Synchronized, "./testdata/sample.tar.gz", "application/x-gzip")
 }
 
 // Tests a zip file.
 func TestZipFile(t *testing.T) {
-	testFile(t, "./testdata/sample.zip", "application/zip")
+	testFile(t, Unsynchronized, "./testdata/sample.zip", "application/zip")
+	testFile(t, Synchronized, "./testdata/sample.zip", "application/zip")
 }
 
-// Tests a gif buffer.
-func TestGifBuffer(t *testing.T) {
-	if err := Open(MAGIC_MIME_TYPE | MAGIC_SYMLINK | MAGIC_ERROR); err != nil {
+// Tests a gif buffer with synchronized access
+func TestGifBufferSynchronized(t *testing.T) {
+	db, err := Open(Synchronized, MAGIC_MIME_TYPE|MAGIC_SYMLINK|MAGIC_ERROR)
+	if err != nil {
 		t.Fatal(err)
 	}
-	defer Close()
+	defer db.Close()
 
 	b64Gif := "R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs="
 	expected := "image/gif"
@@ -69,7 +77,7 @@ func TestGifBuffer(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	mimetype, err := TypeByBuffer(gif)
+	mimetype, err := db.TypeByBuffer(gif)
 	if err != nil {
 		panic(err)
 	}
@@ -78,13 +86,37 @@ func TestGifBuffer(t *testing.T) {
 	}
 }
 
-func testFile(tb testing.TB, path string, expected string) {
-	if err := Open(MAGIC_MIME_TYPE | MAGIC_SYMLINK | MAGIC_ERROR); err != nil {
+// Tests a gif buffer with unsynchronized access
+func TestGifBufferUnsynchronized(t *testing.T) {
+	db, err := Open(Unsynchronized, MAGIC_MIME_TYPE|MAGIC_SYMLINK|MAGIC_ERROR)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	b64Gif := "R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs="
+	expected := "image/gif"
+	gif, err := base64.StdEncoding.DecodeString(b64Gif)
+	if err != nil {
+		panic(err)
+	}
+	mimetype, err := db.TypeByBuffer(gif)
+	if err != nil {
+		panic(err)
+	}
+	if mimetype != expected {
+		t.Errorf("expected %s; got %s.", expected, mimetype)
+	}
+}
+
+func testFile(tb testing.TB, syncMode SyncMode, path string, expected string) {
+	db, err := Open(syncMode, MAGIC_MIME_TYPE|MAGIC_SYMLINK|MAGIC_ERROR)
+	if err != nil {
 		tb.Fatal(err)
 	}
-	defer Close()
+	defer db.Close()
 
-	mimetype, err := TypeByFile(path)
+	mimetype, err := db.TypeByFile(path)
 	if err != nil {
 		panic(err)
 	}
@@ -94,12 +126,13 @@ func testFile(tb testing.TB, path string, expected string) {
 }
 
 func TestMissingFile(t *testing.T) {
-	if err := Open(MAGIC_MIME_TYPE | MAGIC_SYMLINK | MAGIC_ERROR); err != nil {
+	db, err := Open(Unsynchronized, MAGIC_MIME_TYPE|MAGIC_SYMLINK|MAGIC_ERROR)
+	if err != nil {
 		t.Fatal(err)
 	}
-	defer Close()
+	defer db.Close()
 
-	_, err := TypeByFile("missingFile.txt")
+	_, err = db.TypeByFile("missingFile.txt")
 	if err == nil {
 		t.Error("no error for missing file")
 	}
@@ -107,6 +140,24 @@ func TestMissingFile(t *testing.T) {
 
 func BenchmarkZipFile(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		testFile(b, "./testdata/sample.zip", "application/zip")
+		testFile(b, Unsynchronized, "./testdata/sample.zip", "application/zip")
+	}
+}
+
+func BenchmarkSynchronizedZipFile(b *testing.B) {
+	db, err := Open(Synchronized, MAGIC_MIME_TYPE|MAGIC_SYMLINK|MAGIC_ERROR)
+	if err != nil {
+		b.Fatal(err)
+	}
+	defer db.Close()
+
+	for i := 0; i < b.N; i++ {
+		mimetype, err := db.TypeByFile("./testdata/sample.zip")
+		if err != nil {
+			panic(err)
+		}
+		if mimetype != "application/zip" {
+			b.Errorf("expected %s; got %s.", "application/zip", mimetype)
+		}
 	}
 }
