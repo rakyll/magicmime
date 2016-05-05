@@ -23,49 +23,49 @@ import (
 
 // Tests a gif file.
 func TestGifFile(t *testing.T) {
-	testFile(t, Unsynchronized, "./testdata/sample.gif", "image/gif")
-	testFile(t, Synchronized, "./testdata/sample.gif", "image/gif")
+	testFile(t, UNSYNCHRONIZED, "./testdata/sample.gif", "image/gif")
+	testFile(t, SYNCHRONIZED, "./testdata/sample.gif", "image/gif")
 }
 
 // Tests a jpeg file.
 func TestJpegFile(t *testing.T) {
-	testFile(t, Unsynchronized, "./testdata/sample.jpg", "image/jpeg")
-	testFile(t, Synchronized, "./testdata/sample.jpg", "image/jpeg")
+	testFile(t, UNSYNCHRONIZED, "./testdata/sample.jpg", "image/jpeg")
+	testFile(t, SYNCHRONIZED, "./testdata/sample.jpg", "image/jpeg")
 }
 
 // Tests a png file.
 func TestPngFile(t *testing.T) {
-	testFile(t, Unsynchronized, "./testdata/sample.png", "image/png")
-	testFile(t, Synchronized, "./testdata/sample.png", "image/png")
+	testFile(t, UNSYNCHRONIZED, "./testdata/sample.png", "image/png")
+	testFile(t, SYNCHRONIZED, "./testdata/sample.png", "image/png")
 }
 
 // Tests a pdf file.
 func TestPdfFile(t *testing.T) {
-	testFile(t, Unsynchronized, "./testdata/sample.pdf", "application/pdf")
-	testFile(t, Synchronized, "./testdata/sample.pdf", "application/pdf")
+	testFile(t, UNSYNCHRONIZED, "./testdata/sample.pdf", "application/pdf")
+	testFile(t, SYNCHRONIZED, "./testdata/sample.pdf", "application/pdf")
 }
 
 // Tests a plain text file.
 func TestTextFile(t *testing.T) {
-	testFile(t, Unsynchronized, "./testdata/sample.txt", "text/plain")
-	testFile(t, Synchronized, "./testdata/sample.txt", "text/plain")
+	testFile(t, UNSYNCHRONIZED, "./testdata/sample.txt", "text/plain")
+	testFile(t, SYNCHRONIZED, "./testdata/sample.txt", "text/plain")
 }
 
 // Tests a gzipped tar file.
 func TestGzippedTarFile(t *testing.T) {
-	testFile(t, Unsynchronized, "./testdata/sample.tar.gz", "application/x-gzip")
-	testFile(t, Synchronized, "./testdata/sample.tar.gz", "application/x-gzip")
+	testFile(t, UNSYNCHRONIZED, "./testdata/sample.tar.gz", "application/x-gzip")
+	testFile(t, SYNCHRONIZED, "./testdata/sample.tar.gz", "application/x-gzip")
 }
 
 // Tests a zip file.
 func TestZipFile(t *testing.T) {
-	testFile(t, Unsynchronized, "./testdata/sample.zip", "application/zip")
-	testFile(t, Synchronized, "./testdata/sample.zip", "application/zip")
+	testFile(t, UNSYNCHRONIZED, "./testdata/sample.zip", "application/zip")
+	testFile(t, SYNCHRONIZED, "./testdata/sample.zip", "application/zip")
 }
 
 // Tests a gif buffer with synchronized access
-func TestGifBufferSynchronized(t *testing.T) {
-	db, err := Open(Synchronized, MAGIC_MIME_TYPE|MAGIC_SYMLINK|MAGIC_ERROR)
+func TestGifBufferSYNCHRONIZED(t *testing.T) {
+	db, err := Open(SYNCHRONIZED, MAGIC_MIME_TYPE|MAGIC_SYMLINK|MAGIC_ERROR)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -87,8 +87,8 @@ func TestGifBufferSynchronized(t *testing.T) {
 }
 
 // Tests a gif buffer with unsynchronized access
-func TestGifBufferUnsynchronized(t *testing.T) {
-	db, err := Open(Unsynchronized, MAGIC_MIME_TYPE|MAGIC_SYMLINK|MAGIC_ERROR)
+func TestGifBufferUNSYNCHRONIZED(t *testing.T) {
+	db, err := Open(UNSYNCHRONIZED, MAGIC_MIME_TYPE|MAGIC_SYMLINK|MAGIC_ERROR)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -126,7 +126,7 @@ func testFile(tb testing.TB, syncMode SyncMode, path string, expected string) {
 }
 
 func TestMissingFile(t *testing.T) {
-	db, err := Open(Unsynchronized, MAGIC_MIME_TYPE|MAGIC_SYMLINK|MAGIC_ERROR)
+	db, err := Open(UNSYNCHRONIZED, MAGIC_MIME_TYPE|MAGIC_SYMLINK|MAGIC_ERROR)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -140,12 +140,12 @@ func TestMissingFile(t *testing.T) {
 
 func BenchmarkZipFile(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		testFile(b, Unsynchronized, "./testdata/sample.zip", "application/zip")
+		testFile(b, UNSYNCHRONIZED, "./testdata/sample.zip", "application/zip")
 	}
 }
 
-func BenchmarkSynchronizedZipFile(b *testing.B) {
-	db, err := Open(Synchronized, MAGIC_MIME_TYPE|MAGIC_SYMLINK|MAGIC_ERROR)
+func BenchmarkSYNCHRONIZEDZipFile(b *testing.B) {
+	db, err := Open(SYNCHRONIZED, MAGIC_MIME_TYPE|MAGIC_SYMLINK|MAGIC_ERROR)
 	if err != nil {
 		b.Fatal(err)
 	}

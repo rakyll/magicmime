@@ -42,8 +42,8 @@ type MimeDB struct {
 type SyncMode int
 
 const (
-	Synchronized   SyncMode = iota
-	Unsynchronized SyncMode = iota
+	SYNCHRONIZED   SyncMode = iota
+	UNSYNCHRONIZED SyncMode = iota
 )
 
 type Flag int
@@ -144,7 +144,7 @@ func Open(syncMode SyncMode, flags Flag) (*MimeDB, error) {
 		return nil, errors.New(C.GoString(C.magic_error(db)))
 	}
 	var mutex *sync.Mutex
-	if syncMode == Synchronized {
+	if syncMode == SYNCHRONIZED {
 		mutex = &sync.Mutex{}
 	}
 	return &MimeDB{mutex, db}, nil
