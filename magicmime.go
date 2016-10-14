@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build linux darwin
+// +build linux darwin windows
 
 // Package magicmime detects mimetypes using libmagic.
 // This package requires libmagic, install it by the following
@@ -137,6 +137,28 @@ func NewDecoder(flags Flag) (*Decoder, error) {
 	}
 
 	if code := C.magic_load(db, nil); code != 0 {
+		d.Close()
+		return nil, errors.New(C.GoString(C.magic_error(d.db)))
+	}
+	return d, nil
+}
+
+// NewDecoderWithMagicDB creates a detector with the magic database file and the specified flags. Upon
+// success users are expected to call Close on the returned Decoder
+// when it is no longer needed.
+func NewDecoderWithMagicDB(flags Flag, magicDB string) (*Decoder, error) {
+	db := C.magic_open(C.int(0))
+	if db == nil {
+		return nil, errors.New("error opening magic")
+	}
+	d := &Decoder{db: db}
+	if code := C.magic_setflags(db, C.int(flags)); code != 0 {
+		d.Close()
+		return nil, errors.New(C.GoString(C.magic_error(d.db)))
+	}
+	path := C.CString(magicDB)
+	defer C.free(unsafe.Pointer(path))
+	if code := C.magic_load(db, path); code != 0 {
 		d.Close()
 		return nil, errors.New(C.GoString(C.magic_error(d.db)))
 	}
