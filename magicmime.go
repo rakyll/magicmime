@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build linux darwin
+// +build linux darwin freebsd
 
 // Package magicmime detects mimetypes using libmagic.
 // This package requires libmagic, install it by the following
