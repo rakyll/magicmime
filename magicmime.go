@@ -152,9 +152,11 @@ func NewDecoderWithMagicDB(flags Flag, magicDB string) (*Decoder, error) {
 		return nil, errors.New("error opening magic")
 	}
 	d := &Decoder{db: db}
+	var err error
 	if code := C.magic_setflags(db, C.int(flags)); code != 0 {
+		err = errors.New(C.GoString(C.magic_error(d.db)))
 		d.Close()
-		return nil, errors.New(C.GoString(C.magic_error(d.db)))
+		return nil, err
 	}
 	path := C.CString(magicDB)
 	defer C.free(unsafe.Pointer(path))
