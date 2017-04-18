@@ -159,8 +159,9 @@ func NewDecoderWithMagicDB(flags Flag, magicDB string) (*Decoder, error) {
 	path := C.CString(magicDB)
 	defer C.free(unsafe.Pointer(path))
 	if code := C.magic_load(db, path); code != 0 {
+		err = errors.New(C.GoString(C.magic_error(d.db)))
 		d.Close()
-		return nil, errors.New(C.GoString(C.magic_error(d.db)))
+		return nil, err
 	}
 	return d, nil
 }
