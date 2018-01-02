@@ -48,7 +48,7 @@ func TestTextFile(t *testing.T) {
 
 // Tests a gzipped tar file.
 func TestGzippedTarFile(t *testing.T) {
-	testFile(t, "./testdata/sample.tar.gz", "application/x-gzip")
+	testFile(t, "./testdata/sample.tar.gz", "application/gzip")
 }
 
 // Tests a zip file.
