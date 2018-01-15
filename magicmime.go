@@ -158,8 +158,13 @@ func (d *Decoder) TypeByFile(filename string) (string, error) {
 // TypeByBuffer looks up for a blob's mimetype by its contents.
 // It uses a magic number database which is described in magic(5).
 func (d *Decoder) TypeByBuffer(blob []byte) (string, error) {
-	bytes := unsafe.Pointer(&blob[0])
-	out := C.magic_buffer(d.db, bytes, C.size_t(len(blob)))
+	var bytes unsafe.Pointer
+	bloblen := len(blob)
+	if bloblen > 0 {
+		bytes = unsafe.Pointer(&blob[0])
+	}
+
+	out := C.magic_buffer(d.db, bytes, C.size_t(bloblen))
 	if out == nil {
 		return "", errors.New(C.GoString(C.magic_error(d.db)))
 	}
