@@ -124,7 +124,10 @@ const (
 // NewDecoder creates a detector that uses libmagic. It initializes
 // the opens the magicmime database with the specified flags. Upon
 // success users are expected to call Close on the returned Decoder
-// when it is no longer needed.
+// when it is no longer needed. Access to the magicmime
+// database is not synchronized; the magicmime database file-descriptor
+// is referenced through a global variable.  Add mutex Lock/Unlock around
+// the magicmime functions if using multiple goroutines.
 func NewDecoder(flags Flag) (*Decoder, error) {
 	db := C.magic_open(C.int(0))
 	if db == nil {
