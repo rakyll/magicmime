@@ -78,6 +78,23 @@ func TestGifBuffer(t *testing.T) {
 	}
 }
 
+func TestEmptyBuffer(t *testing.T) {
+	if err := Open(MAGIC_MIME_TYPE | MAGIC_SYMLINK | MAGIC_ERROR); err != nil {
+		t.Fatal(err)
+	}
+	defer Close()
+
+	var buffer []byte
+	expected := "application/x-empty"
+	mimetype, err := TypeByBuffer(buffer)
+	if err != nil {
+		panic(err)
+	}
+	if mimetype != expected {
+		t.Errorf("expected %s; got %s.", expected, mimetype)
+	}
+}
+
 func testFile(tb testing.TB, path string, expected string) {
 	if err := Open(MAGIC_MIME_TYPE | MAGIC_SYMLINK | MAGIC_ERROR); err != nil {
 		tb.Fatal(err)
