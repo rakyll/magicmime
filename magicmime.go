@@ -192,7 +192,7 @@ func (d *Decoder) Close() {
 // call Close when they are finished using the package. This must
 // be called before any of the package level functions.
 func Open(flags Flag) error {
-	return NewDecoderWithPath("", flags)
+	return OpenWithPath("", flags)
 }
 
 // Open initializes a global Decoder and opens the magicmime database
