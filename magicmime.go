@@ -132,8 +132,9 @@ func NewDecoderWithPath(path string, flags Flag) (*Decoder, error) {
 	}
 	d := &Decoder{db: db}
 	if code := C.magic_setflags(db, C.int(flags)); code != 0 {
+		errstr := C.GoString(C.magic_error(d.db))
 		d.Close()
-		return nil, errors.New(C.GoString(C.magic_error(d.db)))
+		return nil, errors.New(errstr)
 	}
 
 	var code C.int
@@ -143,8 +144,9 @@ func NewDecoderWithPath(path string, flags Flag) (*Decoder, error) {
 		code = C.magic_load(db, C.CString(path))
 	}
 	if code != 0 {
+		errstr := C.GoString(C.magic_error(d.db))
 		d.Close()
-		return nil, errors.New(C.GoString(C.magic_error(d.db)))
+		return nil, errors.New(errstr)
 	}
 	return d, nil
 }
