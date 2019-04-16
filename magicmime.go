@@ -23,7 +23,7 @@
 package magicmime
 
 // #cgo CFLAGS: -I/usr/local/include
-// #cgo LDFLAGS: -lmagic -L/usr/local/lib
+// #cgo LDFLAGS: -lmagic -lz -L/usr/local/lib
 // #include <stdlib.h>
 // #include <magic.h>
 import "C"
