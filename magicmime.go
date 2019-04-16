@@ -23,7 +23,7 @@
 package magicmime
 
 // #cgo CFLAGS: -I/usr/local/include
-// #cgo LDFLAGS: -lmagic -L/usr/local/lib
+// #cgo LDFLAGS: -lmagic -lz -L/usr/local/lib
 // #include <stdlib.h>
 // #include <magic.h>
 import "C"
@@ -125,22 +125,38 @@ const (
 // the opens the magicmime database with the specified flags. Upon
 // success users are expected to call Close on the returned Decoder
 // when it is no longer needed.
-func NewDecoder(flags Flag) (*Decoder, error) {
+func NewDecoderWithPath(path string, flags Flag) (*Decoder, error) {
 	db := C.magic_open(C.int(0))
 	if db == nil {
 		return nil, errors.New("error opening magic")
 	}
 	d := &Decoder{db: db}
 	if code := C.magic_setflags(db, C.int(flags)); code != 0 {
+		errstr := C.GoString(C.magic_error(d.db))
 		d.Close()
-		return nil, errors.New(C.GoString(C.magic_error(d.db)))
+		return nil, errors.New(errstr)
 	}
 
-	if code := C.magic_load(db, nil); code != 0 {
+	var code C.int
+	if path == "" {
+		code = C.magic_load(db, nil)
+	} else {
+		code = C.magic_load(db, C.CString(path))
+	}
+	if code != 0 {
+		errstr := C.GoString(C.magic_error(d.db))
 		d.Close()
-		return nil, errors.New(C.GoString(C.magic_error(d.db)))
+		return nil, errors.New(errstr)
 	}
 	return d, nil
+}
+
+// NewDecoder creates a detector that uses libmagic. It initializes
+// the opens the magicmime database with the specified flags. Upon
+// success users are expected to call Close on the returned Decoder
+// when it is no longer needed.
+func NewDecoder(flags Flag) (*Decoder, error) {
+	return NewDecoderWithPath("", flags)
 }
 
 // TypeByFile looks up for a file's mimetype by its content.
@@ -178,13 +194,21 @@ func (d *Decoder) Close() {
 // call Close when they are finished using the package. This must
 // be called before any of the package level functions.
 func Open(flags Flag) error {
+	return OpenWithPath("", flags)
+}
+
+// Open initializes a global Decoder and opens the magicmime database
+// with the specified flags. Once successfully opened, users must
+// call Close when they are finished using the package. This must
+// be called before any of the package level functions.
+func OpenWithPath(path string, flags Flag) error {
 	decMu.Lock()
 	defer decMu.Unlock()
 	if dec != nil {
 		return errors.New("cannot open; magic mime db is already open")
 	}
 	var err error
-	dec, err = NewDecoder(flags)
+	dec, err = NewDecoderWithPath(path, flags)
 	return err
 }
 
