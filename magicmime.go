@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build linux darwin freebsd
+//go:build linux || darwin || freebsd
 
 // Package magicmime detects mimetypes using libmagic.
 // This package requires libmagic, install it by the following
@@ -22,8 +22,8 @@
 //	 - Mac OS X: brew install libmagic
 package magicmime
 
-// #cgo CFLAGS: -I/usr/local/include
-// #cgo LDFLAGS: -lmagic -L/usr/local/lib
+// #cgo pkg-config: libmagic
+// #cgo CFLAGS: -I/usr/local/include -I/opt/homebrew/opt/libmagic/include
 // #include <stdlib.h>
 // #include <magic.h>
 import "C"
