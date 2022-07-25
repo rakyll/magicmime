@@ -22,8 +22,8 @@
 //	 - Mac OS X: brew install libmagic
 package magicmime
 
+// #cgo pkg-config: libmagic
 // #cgo CFLAGS: -I/usr/local/include
-// #cgo LDFLAGS: -lmagic -L/usr/local/lib
 // #include <stdlib.h>
 // #include <magic.h>
 import "C"
