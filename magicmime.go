@@ -23,7 +23,7 @@
 package magicmime
 
 // #cgo pkg-config: libmagic
-// #cgo CFLAGS: -I/usr/local/include
+// #cgo CFLAGS: -I/usr/local/include -I/opt/homebrew/opt/libmagic/include
 // #include <stdlib.h>
 // #include <magic.h>
 import "C"
